@@ -30,6 +30,7 @@
 
 <script>
   var authResponse = {};
+  var me = {};
 
   window.fbAsyncInit = function () {
     FB.init({
@@ -46,12 +47,26 @@
         FB.login(function (response) {
           authResponse = response.authResponse;
           getPage();
+          getMe();
         });
       } else {
         getPage();
+        getMe();
       }
     });
   };
+
+  function getMe() {
+    FB.api(
+      "/me",
+      {
+        access_token: authResponse.accessToken,
+      },
+      function (response) {
+        me = response;
+      }
+    );
+  }
 
   function getPage() {
     FB.api(
@@ -71,9 +86,9 @@
   }
 
   function pageClick(id) {
-    console.log('id',id)
-    $("#feedList").html('')
-    $("#plusList").html('')
+    console.log("id", id);
+    $("#feedList").html("");
+    $("#plusList").html("");
     FB.api(
       `${id}/feed`,
       {
@@ -91,8 +106,8 @@
   }
 
   function feedClick(id) {
-    console.log('id',id)
-    $("#plusList").html('')
+    console.log("id", id);
+    $("#plusList").html("");
     FB.api(
       `${id}/comments`,
       {
@@ -101,7 +116,13 @@
       function (response) {
         console.log(response);
         response.data.map(function (res) {
-          if(res.message.indexOf('+1') > -1){
+          if (res.message.indexOf("+1") > -1) {
+            if (!res.from) {
+              $("#plusList").append(
+                `<li><a target="_blank" href='http://m.me/${me.id}'>${me.name}</a>:${res.message}</li>`
+              );
+              return;
+            }
             $("#plusList").append(
               `<li><a target="_blank" href='http://m.me/${res.from.id}'>${res.from.name}</a>:${res.message}</li>`
             );
