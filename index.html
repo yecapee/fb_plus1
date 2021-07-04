@@ -86,8 +86,6 @@
 
   function pageClick(id) {
     console.log("id", id);
-    $("#feedList").html("");
-    $("#plusList").html("");
     FB.api(
       `${id}/feed`,
       {
@@ -95,6 +93,8 @@
       },
       function (response) {
         console.log(response);
+        $("#feedList").html("");
+        $("#plusList").html("");
         response.data.map(function (res) {
           $("#feedList").append(
             `<li onclick="feedClick('${res.id}')">${res.message}</li>`
@@ -106,7 +106,6 @@
 
   function feedClick(id) {
     console.log("id", id);
-    $("#plusList").html("");
     FB.api(
       `${id}/comments`,
       {
@@ -114,6 +113,7 @@
       },
       function (response) {
         console.log(response);
+        $("#plusList").html("");
         response.data.map(function (res) {
           if (res.message.indexOf("+1") > -1) {
             if (!res.from) {
