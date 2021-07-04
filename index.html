@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div>1.登入</div>
+    <div>
+      2.選擇粉專
+      <ul id="pageList"></ul>
+    </div>
+    <div>
+      3.選擇留言
+      <ul id="feedList"></ul>
+    </div>
+    <div>
+      3.+1清單
+      <ul id="plusList"></ul>
+    </div>
+  </body>
+</html>
+
+<script>
+  var authResponse = {};
+
+  window.fbAsyncInit = function () {
+    FB.init({
+      appId: "546444779710099",
+      cookie: true,
+      xfbml: true,
+      version: "v2.9",
+    });
+
+    FB.AppEvents.logPageView();
+    FB.getLoginStatus(function (response) {
+      authResponse = response.authResponse;
+      if (!response.authResponse) {
+        FB.login(function (response) {
+          authResponse = response.authResponse;
+          getPage();
+        });
+      } else {
+        getPage();
+      }
+    });
+  };
+
+  function getPage() {
+    FB.api(
+      "/me/accounts",
+      {
+        access_token: authResponse.accessToken,
+      },
+      function (response) {
+        console.log(response);
+        response.data.map(function (res) {
+          $("#pageList").append(
+            `<li onclick="pageClick('${res.id}')">${res.name}</li>`
+          );
+        });
+      }
+    );
+  }
+
+  function pageClick(id) {
+    console.log('id',id)
+    $("#feedList").html('')
+    $("#plusList").html('')
+    FB.api(
+      `${id}/feed`,
+      {
+        access_token: authResponse.accessToken,
+      },
+      function (response) {
+        console.log(response);
+        response.data.map(function (res) {
+          $("#feedList").append(
+            `<li onclick="feedClick('${res.id}')">${res.message}</li>`
+          );
+        });
+      }
+    );
+  }
+
+  function feedClick(id) {
+    console.log('id',id)
+    $("#plusList").html('')
+    FB.api(
+      `${id}/comments`,
+      {
+        access_token: authResponse.accessToken,
+      },
+      function (response) {
+        console.log(response);
+        response.data.map(function (res) {
+          if(res.message.indexOf('+1') > -1){
+            $("#plusList").append(
+              `<li>${res.from.name}:${res.message}</li>`
+            );
+          }
+        });
+      }
+    );
+  }
+
+  (function (d, s, id) {
+    var js,
+      fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {
+      return;
+    }
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  })(document, "script", "facebook-jssdk");
+</script>
