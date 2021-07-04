@@ -103,7 +103,7 @@
         response.data.map(function (res) {
           if(res.message.indexOf('+1') > -1){
             $("#plusList").append(
-              `<li><a target="_blank" href='http://m.me/${res.from.name}'>${res.from.name}</a>:${res.message}</li>`
+              `<li><a target="_blank" href='http://m.me/${res.from.id}'>${res.from.name}</a>:${res.message}</li>`
             );
           }
         });
